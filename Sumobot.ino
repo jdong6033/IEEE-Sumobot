@@ -12,10 +12,14 @@ Zumo32U4Motors motors;
 Zumo32U4LCD LCD;
 Zumo32U4ProximitySensors proxSense;
 
-bool isA, isB, isC;
+bool fiveCheck = false;
 
 void setup() {
   // put your setup code here, to run once:
+  LCD.init();
+  LCD.clear();
+  LCD.gotoXY(0,0);
+  LCD.print("Hello");
   Serial.begin(9600);
   proxSense.initThreeSensors();
 }
@@ -43,50 +47,31 @@ void start(){
   Serial.print(" ");
   Serial.println(right_sensor);
 
-  if(left_sensor > right_sensor){
-    motors.setRightSpeed(400);
-    motors.setLeftSpeed(-200);
+  if(left_sensor == 0 && center_left == 0 && center_right == 0 && right_sensor == 0){
+    motors.setSpeeds(400, -400);
   }
-  if(right_sensor > left_sensor){
-    motors.setLeftSpeed(400);
-    motors.setRightSpeed(-200);
+  else{
+    if(left_sensor > right_sensor){
+      motors.setSpeeds(400, -400);
+    }
+    if(right_sensor > left_sensor){
+      motors.setSpeeds(-400, 400);
+    }
+    else{
+      motors.setSpeeds(400, 400);
+    }
   }
-}
-
-void rightSpeed(){
-  
-}
-
-void leftSpeed(){
-
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  // ledRed(0);
-  // delay(500);
-  // ledRed(1);
-  // delay(500);
-  //motors.setSpeeds(300, 300);
-  if(buttA.isPressed()){
-    isA = true;
-    isB = false;
-    isC = false;
-  }
-  else if(buttB.isPressed()){
-    isA = false;
-    isB = true;
-    isC = false;
-  }
-  else if(buttC.isPressed()){
-    isA = false;
-    isB = false;
-    isC = true;
-  }
-  if(isA){
+  LCD.blink();
+  if(fiveCheck == false && buttC.isPressed()){
     stop();
+    delay(5000);
+    fiveCheck = true;
   }
-  else if(isB){
+  else if(fiveCheck == true){
     start();
   }
 }
