@@ -3,75 +3,62 @@
 Zumo32U4ButtonA buttA;
 Zumo32U4ButtonB buttB;
 Zumo32U4ButtonC buttC;
-//Zumo32U4Encoders encode;
-Zumo32U4IMU IMU;
 Zumo32U4IRPulses Ir;
 //Zumo32U4LineSensors sensors;
 Zumo32U4Motors motors;
-//Zumo32U4OLED LED;
-Zumo32U4LCD LCD;
+Zumo32U4OLED display;
 Zumo32U4ProximitySensors proxSense;
 
-bool fiveCheck = false;
+bool fiveCheck = false; //checking if five seconds have passed
 
 void setup() {
-  // put your setup code here, to run once:
-  LCD.init();
-  LCD.clear();
-  LCD.gotoXY(0,0);
-  LCD.print("Hello");
-  Serial.begin(9600);
-  proxSense.initThreeSensors();
+  proxSense.initThreeSensors(); //initializing the sensors
+  display.clear(); //clearing the display
 }
 
 void stop(){
-  motors.setSpeeds(0, 0);
+  motors.setSpeeds(0, 0); //initial state
 }
 
 void start(){
-  proxSense.read();
-
-  uint8_t leftValue = proxSense.countsFrontWithLeftLeds();
-  uint8_t rightValue = proxSense.countsFrontWithRightLeds();
+  proxSense.read(); //reading in values from the proximity sensors
   
   int left_sensor = proxSense.countsLeftWithLeftLeds();
   int center_left = proxSense.countsFrontWithLeftLeds();
   int center_right = proxSense.countsFrontWithRightLeds();
   int right_sensor = proxSense.countsRightWithRightLeds();
 
-  Serial.print(left_sensor);
-  Serial.print(" ");
-  Serial.print(center_left);
-  Serial.print(" ");
-  Serial.print(center_right);
-  Serial.print(" ");
-  Serial.println(right_sensor);
+  display.gotoXY(0, 0);
+  display.print(left_sensor); //displaying value of left sensor
+  display.gotoXY(2, 0);
+  display.print(center_left); //displaying value of center_left
+  display.gotoXY(6, 0);
+  display.print(right_sensor); //displaying value of right sensor
+  display.gotoXY(4, 0);
+  display.print(center_right); //displaying value of center_right
 
-  if(left_sensor == 0 && center_left == 0 && center_right == 0 && right_sensor == 0){
-    motors.setSpeeds(400, -400);
+  if(left_sensor >= 2 && left_sensor > right_sensor){
+    motors.setSpeeds(-400, 400); //checking if object is on left side of bot, if it is, it will turn left
+  }
+  else if(right_sensor >= 2 && left_sensor < right_sensor){
+    motors.setSpeeds(400, -400); //chekcing if object is on right side of bot, if it is, it will turn right
   }
   else{
-    if(left_sensor > right_sensor){
-      motors.setSpeeds(400, -400);
+    if(center_left >= 2 && center_right >= 2){
+      motors.setSpeeds(400, 400); //checking if object is in front of it, if it is, it will try to push it out of the ring
     }
-    if(right_sensor > left_sensor){
-      motors.setSpeeds(-400, 400);
-    }
-    else{
-      motors.setSpeeds(400, 400);
-    }
+    else motors.setSpeeds(0, 0); //else, it won't move
   }
+  delay(100); //delay for testing
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  LCD.blink();
-  if(fiveCheck == false && buttC.isPressed()){
+  if(fiveCheck == false && buttC.isPressed()){ //conditional if it goes past 5 seconds
     stop();
     delay(5000);
     fiveCheck = true;
   }
-  else if(fiveCheck == true){
+ else if(fiveCheck == true){
     start();
-  }
+ }
 }
