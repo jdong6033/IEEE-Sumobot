@@ -9,6 +9,10 @@ Zumo32U4Motors motors;
 Zumo32U4OLED display;
 Zumo32U4ProximitySensors proxSense;
 
+#define PROX_SENSOR_THRESHOLD 2  //Integer threshold for proximity sensors
+#define DRIVE_SPEED 400          //Speed at which the bot drives (in magic bot units)
+#define FIVE_SECONDS 5000         //milliseconds
+
 bool fiveCheck = false; //checking if five seconds have passed
 
 void setup() {
@@ -30,35 +34,48 @@ void start(){
 
   display.gotoXY(0, 0);
   display.print(left_sensor); //displaying value of left sensor
+
   display.gotoXY(2, 0);
   display.print(center_left); //displaying value of center_left
+
   display.gotoXY(6, 0);
   display.print(right_sensor); //displaying value of right sensor
+
   display.gotoXY(4, 0);
   display.print(center_right); //displaying value of center_right
 
-  if(left_sensor >= 2 && left_sensor > right_sensor){
-    motors.setSpeeds(-400, 400); //checking if object is on left side of bot, if it is, it will turn left
+  if(center_left >= PROX_SENSOR_THRESHOLD || center_right >= PROX_SENSOR_THRESHOLD)
+  {
+      motors.setSpeeds(DRIVE_SPEED, DRIVE_SPEED); //checking if object is in front of it, if it is, it will try to push it out of the ring
   }
-  else if(right_sensor >= 2 && left_sensor < right_sensor){
-    motors.setSpeeds(400, -400); //chekcing if object is on right side of bot, if it is, it will turn right
+  else if(left_sensor >= PROX_SENSOR_THRESHOLD && left_sensor > right_sensor){
+    motors.setSpeeds(-DRIVE_SPEED, DRIVE_SPEED); //checking if object is on left side of bot, if it is, it will turn left
+  }
+  else if(right_sensor >= PROX_SENSOR_THRESHOLD && left_sensor < right_sensor){
+    motors.setSpeeds(DRIVE_SPEED, -DRIVE_SPEED); //chekcing if object is on right side of bot, if it is, it will turn right
   }
   else{
-    if(center_left >= 2 && center_right >= 2){
-      motors.setSpeeds(400, 400); //checking if object is in front of it, if it is, it will try to push it out of the ring
-    }
-    else motors.setSpeeds(0, 0); //else, it won't move
+    stop();
   }
   delay(100); //delay for testing
 }
 
 void loop() {
+  
   if(fiveCheck == false && buttC.isPressed()){ //conditional if it goes past 5 seconds
+    display.gotoXY(0,0);
+    display.print("Waiting...");
     stop();
-    delay(5000);
+    delay(FIVE_SECONDS);
+    display.clear();
     fiveCheck = true;
   }
- else if(fiveCheck == true){
+  else if(fiveCheck == true){
     start();
- }
+  }
+  else
+  {
+    display.gotoXY(0,0);
+    display.print("Press C");
+  }
 }
