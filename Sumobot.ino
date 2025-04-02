@@ -10,8 +10,8 @@ Zumo32U4OLED display;
 Zumo32U4ProximitySensors proxSense;
 
 #define PROX_SENSOR_THRESHOLD 2     //Integer threshold for proximity sensors
-#define LINE_SENSOR_THRESHOLD 1500  // Threshold for Line sensors
-#define DRIVE_SPEED 400             //Speed at which the bot drives (in magic bot units)
+#define LINE_SENSOR_THRESHOLD 100  // Threshold for Line sensors
+#define DRIVE_SPEED 350             //Speed at which the bot drives (in magic bot units)
 #define FIVE_SECONDS 5000           //milliseconds
 
 #define LEFT_LS 0
@@ -57,9 +57,9 @@ void start(){
   // display.gotoXY(4, 0);
   // display.print(center_right); //displaying value of center_right
 
-  if(sensorVals[LEFT_LS] >= LINE_SENSOR_THRESHOLD || sensorVals[RIGHT_LS] >= LINE_SENSOR_THRESHOLD || sensorVals[CENTER_LS] >= LINE_SENSOR_THRESHOLD)
+  if(sensorVals[LEFT_LS] <= LINE_SENSOR_THRESHOLD || sensorVals[RIGHT_LS] <= LINE_SENSOR_THRESHOLD || sensorVals[CENTER_LS] <= LINE_SENSOR_THRESHOLD) //
   {
-    //turnAroundAtBorder();
+    turnAroundAtBorder();
   }
 
   //FRONT CHECK
@@ -79,14 +79,14 @@ void start(){
   }
 
   //If sense Notho
-  else if(center_left == 0 && center_right == 0)
-  {
-    if (right_sensor == 0 && left_sensor == 0)
-    {
-      motors.setSpeeds(-DRIVE_SPEED, DRIVE_SPEED);
-      delay(400);
-    }
-  }
+  // else if(center_left == 0 && center_right == 0)
+  // {
+  //   if (right_sensor == 0 && left_sensor == 0)
+  //   {
+  //     motors.setSpeeds(-DRIVE_SPEED, DRIVE_SPEED);
+  //     delay(400);
+  //   }
+  // }
   else{
     motors.setSpeeds(DRIVE_SPEED, DRIVE_SPEED);
   }
